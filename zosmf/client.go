@@ -1,13 +1,13 @@
 package zosmf
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"strings"
-	"terraform-provider-zosmf/zosmf"
 	"time"
 )
 
@@ -77,8 +77,8 @@ func (c *Client) GetDataset(name string) (*Dataset, error) {
 		return nil, err
 	}
 
-	content := zosmf.Dataset{
-		content: string(body),
+	content := Dataset{
+		Content: string(body),
 	}
 
 	return &content, nil
@@ -89,7 +89,7 @@ func (c *Client) CreateDataset(name string, dataset CreateDataset) error {
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest("POST", fmt.Sprintf("%s/zosmf/restfiles/ds/%s", c.Host, name), strings.NewReader(string(rb)))
+	req, err := http.NewRequest("POST", fmt.Sprintf("%s/zosmf/restfiles/ds/%s", c.Host, name), bytes.NewBuffer(rb))
 	if err != nil {
 		return err
 	}
@@ -100,6 +100,8 @@ func (c *Client) CreateDataset(name string, dataset CreateDataset) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
 }
 
 func (c *Client) Test() (string, error) {

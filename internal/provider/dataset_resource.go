@@ -157,13 +157,27 @@ func (r *DatasetResource) Create(ctx context.Context, req resource.CreateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-	datasetatt := zosmf.CreateDataset{
-		Volser: data.Volser.ValueString(),
+	datasetattrib := zosmf.CreateDataset{
+		Volser:    data.Volser.ValueString(),
+		Unit:      data.Unit.ValueString(),
+		Dsorg:     data.Dsorg.ValueString(),
+		Alcunit:   data.Name.ValueString(),
+		Primary:   int(data.Primary.ValueInt64()),
+		Secondary: int(data.Secondary.ValueInt64()),
+		Dirblk:    int(data.Dirblk.ValueInt64()),
+		Avgblk:    int(data.Avgblk.ValueInt64()),
+		Recfm:     data.Recfm.ValueString(),
+		Blksize:   int(data.Blksize.ValueInt64()),
+		Lrecl:     int(data.Lrecl.ValueInt64()),
+		Storclass: data.Storclass.ValueString(),
+		Mgntclass: data.Mgntclass.ValueString(),
+		Dataclass: data.Dataclass.ValueString(),
+		Dsntype:   data.Dsntype.ValueString(),
 	}
 
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
-	err := r.client.CreateDataset(data.Name.ValueString(), datasetatt)
+	err := r.client.CreateDataset(data.Name.ValueString(), datasetattrib)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Dataset, got error: %s", err))
 		return
