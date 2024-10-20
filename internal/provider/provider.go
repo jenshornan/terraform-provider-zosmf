@@ -3,8 +3,10 @@ package provider
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/hashicorp/terraform-plugin-framework/datasource"
+	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/provider"
 	"github.com/hashicorp/terraform-plugin-framework/provider/schema"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -58,7 +60,8 @@ func (p *zosmfProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp
 				Required: true,
 			},
 			"username": schema.StringAttribute{
-				Optional: true,
+				Optional: false,
+				Required: true,
 			},
 			"password": schema.StringAttribute{
 				Optional:  true,
@@ -80,13 +83,30 @@ func (p *zosmfProvider) Configure(ctx context.Context, req provider.ConfigureReq
 		return
 	}
 
+	zos_password := os.Getenv("ZOS_PASSWORD")
+
+	if !config.Password.IsNull() {
+		zos_password = config.Password.ValueString()
+	}
+
+	// If any of the expected configurations are missing, return
+	// errors with provider-specific guidance.
+
+	if zos_password == "" {
+		resp.Diagnostics.AddAttributeError(
+			path.Root("password"),
+			"Missing Zosmf password",
+			"Password is needed",
+		)
+	}
+
 	client, err := zosmf.NewClient(config.Host.ValueString(), config.Username.ValueString(), config.Password.ValueString(), config.Insecure.ValueBool())
 	if err != nil {
 		resp.Diagnostics.AddError(
-			"Unable to Create HashiCups API Client",
-			"An unexpected error occurred when creating the HashiCups API client. "+
+			"Unable to Create zosmf API Client",
+			"An unexpected error occurred when creating the zosmf API client. "+
 				"If the error is not clear, please contact the provider developers.\n\n"+
-				"HashiCups Client Error: "+err.Error(),
+				"Zosmf Client Error: "+err.Error(),
 		)
 		return
 	}
