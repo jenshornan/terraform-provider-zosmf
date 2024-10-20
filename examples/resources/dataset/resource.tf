@@ -1,3 +1,3 @@
-resource "scaffolding_example" "example" {
-  configurable_attribute = "some-value"
+resource "zosmf_dataset" "example" {
+  name = "IBMUSER.IBMUSER.TEST"
 }
