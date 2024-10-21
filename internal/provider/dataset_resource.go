@@ -47,6 +47,7 @@ type DatasetResourceModel struct {
 	Mgntclass types.String `tfsdk:"mgntclass"`
 	Dataclass types.String `tfsdk:"dataclass"`
 	Dsntype   types.String `tfsdk:"dsntype"`
+	Content   types.String `tfsdk:"content"`
 }
 
 func (r *DatasetResource) Metadata(ctx context.Context, req resource.MetadataRequest, resp *resource.MetadataResponse) {
@@ -61,6 +62,11 @@ func (r *DatasetResource) Schema(ctx context.Context, req resource.SchemaRequest
 		Attributes: map[string]schema.Attribute{
 			"name": schema.StringAttribute{
 				MarkdownDescription: "Dataset name",
+				Optional:            false,
+				Required:            true,
+			},
+			"content": schema.StringAttribute{
+				MarkdownDescription: "Content",
 				Optional:            false,
 				Required:            true,
 			},
@@ -157,6 +163,9 @@ func (r *DatasetResource) Create(ctx context.Context, req resource.CreateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
+	content := zosmf.Dataset{
+		Content: data.Content.ValueString(),
+	}
 	datasetattrib := zosmf.CreateDataset{
 		Volser:    data.Volser.ValueString(),
 		Unit:      data.Unit.ValueString(),
@@ -177,7 +186,7 @@ func (r *DatasetResource) Create(ctx context.Context, req resource.CreateRequest
 
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
-	err := r.client.CreateDataset(data.Name.ValueString(), datasetattrib)
+	err := r.client.CreateDataset(data.Name.ValueString(), datasetattrib, content)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Dataset, got error: %s", err))
 		return

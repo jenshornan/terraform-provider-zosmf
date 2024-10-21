@@ -83,7 +83,7 @@ func (c *Client) GetDataset(name string) (*Dataset, error) {
 	return &content, nil
 }
 
-func (c *Client) CreateDataset(name string, dataset CreateDataset) error {
+func (c *Client) CreateDataset(name string, dataset CreateDataset, content Dataset) error {
 	rb, err := json.Marshal(dataset)
 	if err != nil {
 		return err
@@ -99,10 +99,26 @@ func (c *Client) CreateDataset(name string, dataset CreateDataset) error {
 	if err != nil {
 		return err
 	}
+	err = c.AddData(name, content)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (c *Client) Test() (string, error) {
-	return c.Username, nil
+func (c *Client) AddData(name string, content Dataset) error {
+
+	req, err := http.NewRequest("PUT", fmt.Sprintf("%s/zosmf/restfiles/ds/%s", c.Host, name), bytes.NewBuffer([]byte(content.Content)))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Accept", "text/plain")
+	req.Header.Set("Content-Type", "text/plain")
+
+	_, err = c.doRequest(req)
+	if err != nil {
+		return err
+	}
+	return nil
 }

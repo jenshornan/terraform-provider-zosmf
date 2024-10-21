@@ -16,6 +16,7 @@ type CreateDataset struct {
 	Mgntclass string `json:"mgntclass"`
 	Dataclass string `json:"dataclass"`
 	Dsntype   string `json:"dsntype"`
+	Content   Dataset `json:"content"`
 }
 
 type Dataset struct {
