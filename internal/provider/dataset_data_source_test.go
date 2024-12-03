@@ -11,14 +11,13 @@ import (
 
 func TestAccExampleDataSource(t *testing.T) {
 	resource.Test(t, resource.TestCase{
-		PreCheck:                 func() { testAccPreCheck(t) },
 		ProtoV6ProviderFactories: testAccProtoV6ProviderFactories,
 		Steps: []resource.TestStep{
 			// Read testing
 			{
-				Config: testAccExampleDataSourceConfig,
+				Config: providerConfig + testAccExampleDataSourceConfig,
 				Check: resource.ComposeAggregateTestCheckFunc(
-					resource.TestCheckResourceAttr("data.zosmf_dataset.test", "id", "example-id"),
+					resource.TestCheckResourceAttr("data.zosmf_dataset.test", "content", "example-id"),
 				),
 			},
 		},
