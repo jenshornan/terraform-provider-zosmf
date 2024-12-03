@@ -67,7 +67,7 @@ func (p *zosmfProvider) Schema(_ context.Context, _ provider.SchemaRequest, resp
 				Optional:  true,
 				Sensitive: true,
 			},
-			"insecure": schema.StringAttribute{
+			"insecure": schema.BoolAttribute{
 				Optional: true,
 			},
 		},
@@ -100,7 +100,7 @@ func (p *zosmfProvider) Configure(ctx context.Context, req provider.ConfigureReq
 		)
 	}
 
-	client, err := zosmf.NewClient(config.Host.ValueString(), config.Username.ValueString(), config.Password.ValueString(), config.Insecure.ValueBool())
+	client, err := zosmf.NewClient(config.Host.ValueString(), config.Username.ValueString(), zos_password, config.Insecure.ValueBool())
 	if err != nil {
 		resp.Diagnostics.AddError(
 			"Unable to Create zosmf API Client",

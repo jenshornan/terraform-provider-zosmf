@@ -6,7 +6,8 @@ package provider
 import (
 	"context"
 	"fmt"
-
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
+	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
 	"terraform-provider-zosmf/zosmf"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
@@ -64,7 +65,11 @@ func (r *DatasetResource) Schema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: "Dataset name",
 				Optional:            false,
 				Required:            true,
+				PlanModifiers: []planmodifier.String{
+					stringplanmodifier.RequiresReplace(),
+				},
 			},
+
 			"content": schema.StringAttribute{
 				MarkdownDescription: "Content",
 				Optional:            false,
@@ -86,19 +91,19 @@ func (r *DatasetResource) Schema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: "Unit of space allocation",
 				Optional:            true,
 			},
-			"primary": schema.StringAttribute{
+			"primary": schema.Int64Attribute{
 				MarkdownDescription: "Primary space allocation",
 				Optional:            true,
 			},
-			"secondary": schema.StringAttribute{
+			"secondary": schema.Int64Attribute{
 				MarkdownDescription: "Secondary space allocation",
 				Optional:            true,
 			},
-			"dirblk": schema.StringAttribute{
+			"dirblk": schema.Int64Attribute{
 				MarkdownDescription: "Number of directory blocks",
 				Optional:            true,
 			},
-			"avgblk": schema.StringAttribute{
+			"avgblk": schema.Int64Attribute{
 				MarkdownDescription: "Average block",
 				Optional:            true,
 			},
@@ -106,11 +111,11 @@ func (r *DatasetResource) Schema(ctx context.Context, req resource.SchemaRequest
 				MarkdownDescription: "Record format",
 				Optional:            true,
 			},
-			"blksize": schema.StringAttribute{
+			"blksize": schema.Int64Attribute{
 				MarkdownDescription: "Block size",
 				Optional:            true,
 			},
-			"lrecl": schema.StringAttribute{
+			"lrecl": schema.Int64Attribute{
 				MarkdownDescription: "Record length",
 				Optional:            true,
 			},
@@ -166,11 +171,11 @@ func (r *DatasetResource) Create(ctx context.Context, req resource.CreateRequest
 	content := zosmf.Dataset{
 		Content: data.Content.ValueString(),
 	}
-	datasetattrib := zosmf.CreateDataset{
+	datasetattrib := zosmf.DatasetAttribute{
 		Volser:    data.Volser.ValueString(),
 		Unit:      data.Unit.ValueString(),
 		Dsorg:     data.Dsorg.ValueString(),
-		Alcunit:   data.Name.ValueString(),
+		Alcunit:   data.Alcunit.ValueString(),
 		Primary:   int(data.Primary.ValueInt64()),
 		Secondary: int(data.Secondary.ValueInt64()),
 		Dirblk:    int(data.Dirblk.ValueInt64()),
@@ -186,7 +191,7 @@ func (r *DatasetResource) Create(ctx context.Context, req resource.CreateRequest
 
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
-	err := r.client.CreateDataset(data.Name.ValueString(), datasetattrib, content)
+	err := r.client.CreateDataset(data.Name.ValueString(), &datasetattrib, content)
 	if err != nil {
 		resp.Diagnostics.AddError("Client Error", fmt.Sprintf("Unable to create Dataset, got error: %s", err))
 		return
@@ -200,6 +205,7 @@ func (r *DatasetResource) Create(ctx context.Context, req resource.CreateRequest
 	tflog.Trace(ctx, "created a resource")
 
 	// Save data into Terraform state
+	data.Content = types.StringValue(content.Content)
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
 }
 
@@ -213,6 +219,15 @@ func (r *DatasetResource) Read(ctx context.Context, req resource.ReadRequest, re
 		return
 	}
 
+	dataset, err := r.client.GetDataset(data.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error Reading Dataset",
+			"Could not read Dataset with Name "+data.Name.ValueString()+": "+err.Error(),
+		)
+		return
+	}
+
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
 	// httpResp, err := r.client.Do(httpReq)
@@ -222,7 +237,12 @@ func (r *DatasetResource) Read(ctx context.Context, req resource.ReadRequest, re
 	// }
 
 	// Save updated data into Terraform state
+	test := fmt.Sprintf("%s", dataset.Content)
+	tflog.Info(ctx, test)
+	data.Content = types.StringValue(test)
+
 	resp.Diagnostics.Append(resp.State.Set(ctx, &data)...)
+
 }
 
 func (r *DatasetResource) Update(ctx context.Context, req resource.UpdateRequest, resp *resource.UpdateResponse) {
@@ -234,7 +254,17 @@ func (r *DatasetResource) Update(ctx context.Context, req resource.UpdateRequest
 	if resp.Diagnostics.HasError() {
 		return
 	}
-
+	content := zosmf.Dataset{
+		Content: data.Content.ValueString(),
+	}
+	err := r.client.AddData(data.Name.ValueString(), content)
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error updating Dataset",
+			"Could not update Dataset with Name "+data.Name.ValueString()+": "+err.Error(),
+		)
+		return
+	}
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
 	// httpResp, err := r.client.Do(httpReq)

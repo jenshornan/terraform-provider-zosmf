@@ -1,22 +1,21 @@
 package zosmf
 
-type CreateDataset struct {
-	Volser    string `json:"volser"`
-	Unit      string `json:"unit"`
-	Dsorg     string `json:"dsorg"`
-	Alcunit   string `json:"alcunit"`
-	Primary   int    `json:"primary"`
-	Secondary int    `json:"secondary"`
-	Dirblk    int    `json:"dirblk"`
-	Avgblk    int    `json:"avgblk"`
-	Recfm     string `json:"recfm"`
-	Blksize   int    `json:"blksize"`
-	Lrecl     int    `json:"lrecl"`
-	Storclass string `json:"storclass"`
-	Mgntclass string `json:"mgntclass"`
-	Dataclass string `json:"dataclass"`
-	Dsntype   string `json:"dsntype"`
-	Content   Dataset `json:"content"`
+type DatasetAttribute struct {
+	Volser    string `json:"volser,omitempty"`
+	Unit      string `json:"unit,omitempty"`
+	Dsorg     string `json:"dsorg,omitempty"`
+	Alcunit   string `json:"alcunit,omitempty"`
+	Primary   int    `json:"primary,omitempty"`
+	Secondary int    `json:"secondary,omitempty"`
+	Dirblk    int    `json:"dirblk,omitempty"`
+	Avgblk    int    `json:"avgblk,omitempty"`
+	Recfm     string `json:"recfm,omitempty"`
+	Blksize   int    `json:"blksize,omitempty"`
+	Lrecl     int    `json:"lrecl,omitempty"`
+	Storclass string `json:"storclass,omitempty"`
+	Mgntclass string `json:"mgntclass,omitempty"`
+	Dataclass string `json:"dataclass,omitempty"`
+	Dsntype   string `json:"dsntype,omitempty"`
 }
 
 type Dataset struct {

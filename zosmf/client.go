@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 )
@@ -55,7 +56,7 @@ func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 		return nil, err
 	}
 
-	if res.StatusCode != http.StatusOK {
+	if (res.StatusCode != http.StatusOK) && (res.StatusCode != http.StatusCreated) && (res.StatusCode != http.StatusNoContent) {
 		return nil, fmt.Errorf("status: %d, body: %s", res.StatusCode, body)
 	}
 
@@ -83,11 +84,12 @@ func (c *Client) GetDataset(name string) (*Dataset, error) {
 	return &content, nil
 }
 
-func (c *Client) CreateDataset(name string, dataset CreateDataset, content Dataset) error {
+func (c *Client) CreateDataset(name string, dataset *DatasetAttribute, content Dataset) error {
 	rb, err := json.Marshal(dataset)
 	if err != nil {
 		return err
 	}
+	log.Printf("Alcunit blev %s", dataset.Alcunit)
 	req, err := http.NewRequest("POST", fmt.Sprintf("%s/zosmf/restfiles/ds/%s", c.Host, name), bytes.NewBuffer(rb))
 	if err != nil {
 		return err
