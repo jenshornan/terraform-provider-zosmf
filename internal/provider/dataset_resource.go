@@ -6,9 +6,10 @@ package provider
 import (
 	"context"
 	"fmt"
+	"terraform-provider-zosmf/zosmf"
+
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/planmodifier"
 	"github.com/hashicorp/terraform-plugin-framework/resource/schema/stringplanmodifier"
-	"terraform-provider-zosmf/zosmf"
 
 	"github.com/hashicorp/terraform-plugin-framework/path"
 	"github.com/hashicorp/terraform-plugin-framework/resource"
@@ -287,6 +288,14 @@ func (r *DatasetResource) Delete(ctx context.Context, req resource.DeleteRequest
 		return
 	}
 
+	err := r.client.DeleteDataset(data.Name.ValueString())
+	if err != nil {
+		resp.Diagnostics.AddError(
+			"Error deleting Dataset",
+			"Could not delete Dataset with Name "+data.Name.ValueString()+": "+err.Error(),
+		)
+		return
+	}
 	// If applicable, this is a great opportunity to initialize any necessary
 	// provider client data and make a call using it.
 	// httpResp, err := r.client.Do(httpReq)

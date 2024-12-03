@@ -124,3 +124,19 @@ func (c *Client) AddData(name string, content Dataset) error {
 	}
 	return nil
 }
+
+func (c *Client) DeleteDataset(name string) error {
+
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/zosmf/restfiles/ds/%s", c.Host, name), nil)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Accept", "text/plain")
+	req.Header.Set("Content-Type", "text/plain")
+
+	_, err = c.doRequest(req)
+	if err != nil {
+		return err
+	}
+	return nil
+}
