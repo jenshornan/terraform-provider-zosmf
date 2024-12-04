@@ -21,6 +21,7 @@ import (
 // Ensure provider defined types fully satisfy framework interfaces.
 var _ resource.Resource = &DatasetResource{}
 var _ resource.ResourceWithConfigure = &DatasetResource{}
+var _ resource.ResourceWithImportState = &DatasetResource{}
 
 func NewDatasetResource() resource.Resource {
 	return &DatasetResource{}
@@ -306,5 +307,5 @@ func (r *DatasetResource) Delete(ctx context.Context, req resource.DeleteRequest
 }
 
 func (r *DatasetResource) ImportState(ctx context.Context, req resource.ImportStateRequest, resp *resource.ImportStateResponse) {
-	resource.ImportStatePassthroughID(ctx, path.Root("id"), req, resp)
+	resource.ImportStatePassthroughID(ctx, path.Root("name"), req, resp)
 }
