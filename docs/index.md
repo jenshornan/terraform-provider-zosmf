@@ -16,6 +16,7 @@ description: |-
 provider "zosmf" {
   host     = "https://192.168.1.32:10443"
   username = "ibmuser"
+  insecure = false
 }
 ```
 
@@ -25,8 +26,9 @@ provider "zosmf" {
 ### Required
 
 - `host` (String)
+- `username` (String)
 
 ### Optional
 
+- `insecure` (Boolean)
 - `password` (String, Sensitive)
-- `username` (String)
