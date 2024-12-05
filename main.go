@@ -42,7 +42,7 @@ func main() {
 		// TODO: Update this string with the published name of your provider.
 		// Also update the tfplugindocs generate command to either remove the
 		// -provider-name flag or set its value to the updated provider name.
-		Address: "seb.se/provider/zosmf",
+		Address: "registry.terraform.io/jenshornan/zosmf",
 		Debug:   debug,
 	}
 
